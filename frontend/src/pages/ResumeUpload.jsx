@@ -45,7 +45,7 @@ const ResumeUpload = () => {
     formData.append('resume', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload-resume', formData, {
+      const response = await axios.post('/api/upload-resume', formData, {
         headers: { 'Content-Type': 'multipart/form-data', 'Bypass-Tunnel-Reminder': 'true' }
       });
       setResult(response.data);
@@ -77,7 +77,7 @@ const ResumeUpload = () => {
         animate={{ opacity: 1, y: 0 }}
         className="mb-10 text-center"
       >
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">AI Resume Analyzer</h1>
+        <h1 className="text-4xl font-extrabold text-white tracking-tight mb-3">AI Resume Analyzer</h1>
         <p className="text-slate-500 text-lg max-w-2xl mx-auto">Upload your resume to instantly bypass ATS filters and get customized job matches.</p>
       </motion.div>
 
@@ -95,13 +95,13 @@ const ResumeUpload = () => {
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
-              file ? 'border-indigo-400 bg-indigo-50/50' : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50 cursor-pointer'
+              file ? 'border-indigo-400 bg-indigo-50/50' : 'border-slate-600 hover:border-indigo-400 hover:bg-slate-950 cursor-pointer'
             }`}
           >
             {loading ? (
               <div className="flex flex-col items-center py-8">
                 <Loader2 className="w-16 h-16 text-indigo-600 animate-spin mb-6" />
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Analyzing Resume</h3>
+                <h3 className="text-xl font-bold text-white mb-2">Analyzing Resume</h3>
                 <AnimatePresence mode="wait">
                   <motion.p 
                     key={loadingStep}
@@ -114,7 +114,7 @@ const ResumeUpload = () => {
                   </motion.p>
                 </AnimatePresence>
                 
-                <div className="w-64 h-2 bg-slate-100 rounded-full mt-6 overflow-hidden">
+                <div className="w-64 h-2 bg-slate-800 rounded-full mt-6 overflow-hidden">
                   <motion.div 
                     initial={{ width: "0%" }}
                     animate={{ width: `${(loadingStep / 3) * 100}%` }}
@@ -126,12 +126,12 @@ const ResumeUpload = () => {
               <div className="relative">
                 <motion.div 
                   whileHover={{ scale: 1.05 }}
-                  className="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm relative z-10"
+                  className="w-20 h-20 bg-indigo-900/30 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm relative z-10"
                 >
                   {file ? <FileText className="w-10 h-10" /> : <UploadCloud className="w-10 h-10" />}
                 </motion.div>
                 
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
+                <h3 className="text-xl font-bold text-white mb-2">
                   {file ? file.name : 'Drag and drop your resume'}
                 </h3>
                 <p className="text-slate-500 mb-8 max-w-sm mx-auto">
@@ -152,7 +152,7 @@ const ResumeUpload = () => {
                   <div className="flex justify-center space-x-4 relative z-20">
                     <button 
                       onClick={() => setFile(null)}
-                      className="px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-colors"
+                      className="px-6 py-3 bg-slate-900 text-slate-200 border border-slate-700 rounded-xl font-semibold hover:bg-slate-950 transition-colors"
                     >
                       Cancel
                     </button>
@@ -186,16 +186,16 @@ const ResumeUpload = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-8"
           >
-            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100">
+            <div className="w-20 h-20 bg-green-900/30 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-900/50">
               <CheckCircle className="w-10 h-10" />
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Analysis Complete!</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">Analysis Complete!</h2>
             <p className="text-slate-500 text-lg mb-8">We found {result.skills.length} core skills and calculated your ATS score.</p>
             
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <button
                 onClick={() => setResult(null)}
-                className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                className="px-6 py-3 bg-slate-800 text-slate-200 rounded-xl font-bold hover:bg-slate-700 transition-colors"
               >
                 Upload another
               </button>

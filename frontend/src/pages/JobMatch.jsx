@@ -18,10 +18,10 @@ const JobMatch = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/job-match', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+      const response = await axios.post('/api/job-match', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
       setResult(response.data);
 
-      const jobsResponse = await axios.post('http://localhost:5000/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+      const jobsResponse = await axios.post('/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
       setJobs(jobsResponse.data);
     } catch (error) {
       console.error('Match failed', error);
@@ -54,9 +54,9 @@ const JobMatch = () => {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card rounded-[2rem] overflow-hidden mb-8 shadow-lg"
         >
-          <div className="p-8 border-b border-slate-100/50 bg-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="p-8 border-b border-slate-800/50 bg-slate-900/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Automatic Job Matcher</h1>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight">Automatic Job Matcher</h1>
               <p className="text-slate-500 mt-2 font-medium">We'll instantly evaluate your resume against targeted roles using AI.</p>
             </div>
             <motion.button
@@ -92,14 +92,14 @@ const JobMatch = () => {
             className="space-y-8"
           >
             <motion.div variants={fadeUp} className="glass-card rounded-[2rem] overflow-hidden">
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-8 border-b border-indigo-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+              <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 p-8 border-b border-indigo-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                  <h3 className="text-sm font-bold text-indigo-600 uppercase tracking-wider flex items-center mb-3">
+                  <h3 className="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center mb-3">
                     <Briefcase className="w-4 h-4 mr-2" />
                     Matched Job Profile
                   </h3>
-                  <h4 className="text-2xl font-extrabold text-slate-900 tracking-tight">{result.matchedJobTitle}</h4>
-                  <p className="text-slate-700 mt-2 font-medium max-w-xl">{result.matchedJobDescription}</p>
+                  <h4 className="text-2xl font-extrabold text-white tracking-tight">{result.matchedJobTitle}</h4>
+                  <p className="text-slate-200 mt-2 font-medium max-w-xl">{result.matchedJobDescription}</p>
                 </div>
                 
                 {result.matchedJobLink && (
@@ -108,7 +108,7 @@ const JobMatch = () => {
                     href={result.matchedJobLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-white border border-indigo-100 px-5 py-3 rounded-xl shadow-md transition-all"
+                    className="inline-flex items-center text-indigo-400 hover:text-indigo-300 font-bold bg-slate-900 border border-indigo-900/50 px-5 py-3 rounded-xl shadow-md transition-all"
                   >
                     Apply Link <ExternalLink className="w-4 h-4 ml-2" />
                   </motion.a>
@@ -117,7 +117,7 @@ const JobMatch = () => {
 
               <div className="p-8">
                 <div className="flex flex-col md:flex-row gap-8">
-                  <div className="flex-shrink-0 flex flex-col items-center justify-center p-8 bg-white/50 rounded-2xl border border-slate-100 min-w-[240px]">
+                  <div className="flex-shrink-0 flex flex-col items-center justify-center p-8 bg-slate-900/80 rounded-2xl border border-slate-800 min-w-[240px]">
                     <h3 className="text-sm font-extrabold text-slate-500 uppercase tracking-wider mb-6">Match Score</h3>
                     <div className="relative">
                       <svg className="w-32 h-32 transform -rotate-90">
@@ -132,26 +132,26 @@ const JobMatch = () => {
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center flex-col">
-                        <span className="text-4xl font-extrabold text-slate-900">{result.matchScore}%</span>
+                        <span className="text-4xl font-extrabold text-white">{result.matchScore}%</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex-grow space-y-8">
                     <div>
-                      <h3 className="text-lg font-extrabold text-slate-900 flex items-center mb-4 tracking-tight">
+                      <h3 className="text-lg font-extrabold text-white flex items-center mb-4 tracking-tight">
                         <Target className="w-5 h-5 mr-2 text-red-500" />
                         Missing Skills to Target
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {result.missingSkills.length > 0 ? (
                           result.missingSkills.map((skill, idx) => (
-                            <span key={idx} className="px-4 py-2 bg-red-50/80 text-red-700 border border-red-100 rounded-lg text-sm font-bold shadow-sm">
+                            <span key={idx} className="px-4 py-2 bg-red-900/30 text-red-400 border border-red-900/50 rounded-lg text-sm font-bold shadow-sm">
                               {skill}
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-green-600 font-bold flex items-center bg-green-50 px-4 py-2 rounded-lg border border-green-100">
+                          <span className="text-sm text-green-400 font-bold flex items-center bg-green-900/30 px-4 py-2 rounded-lg border border-green-900/50">
                             <CheckCircle className="w-4 h-4 mr-2" />
                             You have all the required key skills!
                           </span>
@@ -160,13 +160,13 @@ const JobMatch = () => {
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-extrabold text-slate-900 flex items-center mb-4 tracking-tight">
+                      <h3 className="text-lg font-extrabold text-white flex items-center mb-4 tracking-tight">
                         <AlertTriangle className="w-5 h-5 mr-2 text-yellow-500" />
                         How to improve your chances
                       </h3>
                       <ul className="space-y-3">
                         {result.suggestions.map((suggestion, idx) => (
-                          <li key={idx} className="flex items-start text-sm text-slate-700 font-medium bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                          <li key={idx} className="flex items-start text-sm text-slate-200 font-medium bg-slate-950/50 p-4 rounded-xl border border-slate-800">
                             <span className="mr-3 text-indigo-500 font-bold text-lg leading-none">•</span>
                             {suggestion}
                           </li>
@@ -179,14 +179,14 @@ const JobMatch = () => {
             </motion.div>
 
             <motion.div variants={fadeUp} className="glass-card rounded-[2rem] overflow-hidden">
-              <div className="p-8 border-b border-slate-100">
-                <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Recommended Jobs For You</h3>
+              <div className="p-8 border-b border-slate-800">
+                <h3 className="text-xl font-extrabold text-white tracking-tight">Recommended Jobs For You</h3>
                 <p className="text-sm text-slate-500 mt-1 font-medium">Based on your resume, you might also be interested in these roles.</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <tr className="border-b border-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wider">
                       <th className="px-8 py-4">Company</th>
                       <th className="px-8 py-4">Job Title</th>
                       <th className="px-8 py-4">Status</th>
@@ -198,25 +198,25 @@ const JobMatch = () => {
                       <tr>
                         <td colSpan="4" className="px-8 py-8 text-center text-slate-500">
                           <div className="animate-pulse space-y-4">
-                            <div className="h-4 bg-slate-100 rounded w-3/4 mx-auto"></div>
-                            <div className="h-4 bg-slate-100 rounded w-1/2 mx-auto"></div>
+                            <div className="h-4 bg-slate-800 rounded w-3/4 mx-auto"></div>
+                            <div className="h-4 bg-slate-800 rounded w-1/2 mx-auto"></div>
                           </div>
                         </td>
                       </tr>
                     ) : (
                       jobs.map((job) => (
-                        <tr key={job.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <tr key={job.id} className="border-b border-slate-50 hover:bg-slate-950/50 transition-colors">
                           <td className="px-8 py-5">
                             <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-extrabold shadow-sm">
+                              <div className="w-10 h-10 rounded-xl bg-indigo-900/30 flex items-center justify-center text-indigo-400 font-extrabold shadow-sm">
                                 {job.company.charAt(0)}
                               </div>
-                              <span className="font-bold text-slate-900">{job.company}</span>
+                              <span className="font-bold text-white">{job.company}</span>
                             </div>
                           </td>
-                          <td className="px-8 py-5 text-slate-600">{job.title}</td>
+                          <td className="px-8 py-5 text-slate-300">{job.title}</td>
                           <td className="px-8 py-5">
-                            <span className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold shadow-sm border border-blue-100">
+                            <span className="px-3 py-1.5 bg-blue-900/30 text-blue-400 rounded-lg text-xs font-bold shadow-sm border border-blue-900/50">
                               Suggested
                             </span>
                           </td>
@@ -226,7 +226,7 @@ const JobMatch = () => {
                               href={job.link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-white border border-indigo-100 px-4 py-2 rounded-xl shadow-sm transition-colors"
+                              className="inline-flex items-center text-indigo-400 hover:text-indigo-300 font-bold bg-slate-900 border border-indigo-900/50 px-4 py-2 rounded-xl shadow-sm transition-colors"
                             >
                               Apply Link <ExternalLink className="w-4 h-4 ml-2" />
                             </motion.a>

@@ -1,103 +1,89 @@
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// --- Resume Analysis (unchanged or improved if you want) ---
-const analyzeResume = async (resumeText) => {
-  const prompt = `
-Analyze this resume and return ONLY valid JSON:
+const axios = require("axios");
 
-{
-  "atsScore": number (0-100),
-  "skills": ["skill1", "skill2"],
-  "jobRoles": ["at least 6 relevant roles"],
-  "suggestions": ["improvement1", "improvement2"],
-  "resumeText": "short summary"
+// 🔧 Clean JSON parser
+function parseJSON(text) {
+  try {
+    const cleaned = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error("RAW AI:", text);
+    throw new Error("Invalid AI response");
+  }
 }
 
-Rules:
-- Give MINIMUM 6 job roles
-- Include beginner + advanced roles
-- Be realistic
+const analyzeResume = async (resumeText) => {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash"
+  });
+
+  const prompt = `
+Analyze this resume and return ONLY JSON:
+
+{
+  "atsScore": number,
+  "skills": [],
+  "jobRoles": [],
+  "suggestions": [],
+  "resumeText": ""
+}
 
 Resume:
 ${resumeText}
 `;
 
-  const response = await client.chat.completions.create({
-    model: "gpt-4.1-mini",
-    messages: [{ role: "user", content: prompt }],
-  });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
-  const text = response.choices[0].message.content;
-
-  try {
-    return JSON.parse(text);
-  } catch (err) {
-    console.error("Resume JSON error:", text);
-    throw new Error("AI response parsing failed");
-  }
+  return parseJSON(text);
 };
 
-// --- 🔥 NEW STRICT JOB MATCH FUNCTION ---
-const compareJob = async (resumeText, jobDescription) => {
-  const prompt = `
-You are a STRICT ATS system.
 
-Compare resume with job description and return ONLY JSON:
+module.exports = { analyzeResume };
+// 🎯 Job Match
+const compareJob = async (resumeText, jobDescription) => {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash"
+  });
+
+  const prompt = `
+You are a strict ATS system.
+
+Return ONLY JSON:
 
 {
-  "matchScore": number (0-100),
+  "matchScore": number,
   "missingSkills": [],
   "strengths": [],
   "suggestions": []
 }
 
-STRICT RULES:
-- Be harsh in scoring
-- Many missing skills → score below 60
-- Average resume → 50-75
-- Only excellent match → above 85
-- Penalize missing required skills heavily
-- DO NOT inflate scores
-
 Resume:
 ${resumeText}
 
-Job Description:
+Job:
 ${jobDescription}
 `;
 
-  const response = await client.chat.completions.create({
-    model: "gpt-4.1-mini",
-    messages: [{ role: "user", content: prompt }],
-  });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
-  const text = response.choices[0].message.content;
+  let parsed = parseJSON(text);
 
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (err) {
-    console.error("Match JSON error:", text);
-    throw new Error("AI response parsing failed");
-  }
-
-  // 🔥 EXTRA PENALTY LOGIC (makes it realistic)
+  // penalty logic
   let score = parsed.matchScore;
 
-  if (parsed.missingSkills?.length >= 5) {
-    score -= 20;
-  } else if (parsed.missingSkills?.length >= 3) {
-    score -= 10;
-  }
+  if (parsed.missingSkills?.length >= 5) score -= 20;
+  else if (parsed.missingSkills?.length >= 3) score -= 10;
 
-  // clamp score between 20–100
-  score = Math.max(20, Math.min(100, score));
-
-  parsed.matchScore = score;
+  parsed.matchScore = Math.max(20, Math.min(100, score));
 
   return parsed;
 };

@@ -30,7 +30,7 @@ const Dashboard = () => {
     const fetchJobs = async () => {
       try {
         const resumeText = localStorage.getItem('jobflow_resume_text') || '';
-        const response = await axios.post('http://localhost:5000/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+        const response = await axios.post('/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
         setJobs(response.data);
       } catch (error) {
         console.error('Failed to fetch jobs', error);
@@ -66,7 +66,7 @@ const Dashboard = () => {
     >
       {/* Header */}
       <motion.div variants={fadeUp} className="mb-8">
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight flex items-center">
+        <h1 className="text-4xl font-extrabold text-white tracking-tight flex items-center">
           Good morning, {capitalizedName} <span className="ml-2 inline-block origin-bottom-right hover:rotate-12 transition-transform cursor-default">👋</span>
         </h1>
         <p className="text-slate-500 mt-2 text-lg">Welcome to your intelligent jobs dashboard</p>
@@ -75,8 +75,8 @@ const Dashboard = () => {
       {/* Purple Stats Banner */}
       <motion.div variants={fadeUp} className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2rem] p-8 text-white mb-8 shadow-xl shadow-indigo-500/20 flex flex-wrap relative overflow-hidden">
         {/* Decorative circle */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mt-32 -mr-32 border-[12px] border-white"></div>
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white opacity-5 rounded-full -mt-20 -mr-20"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-slate-900 opacity-10 rounded-full -mt-32 -mr-32 border-[12px] border-white"></div>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-slate-900 opacity-5 rounded-full -mt-20 -mr-20"></div>
 
         <div className="w-full mb-6 relative z-10">
           <h2 className="font-bold text-indigo-100 tracking-wider uppercase text-sm">Resume Overview</h2>
@@ -109,7 +109,7 @@ const Dashboard = () => {
         <div className="lg:col-span-1 flex flex-col gap-6">
           {/* Explore Jobs */}
           <motion.div variants={fadeUp} whileHover={{ y: -5 }} className="glass-card rounded-[2rem] p-8">
-            <h3 className="text-xl font-extrabold text-slate-900 mb-2 tracking-tight">Explore Jobs</h3>
+            <h3 className="text-xl font-extrabold text-white mb-2 tracking-tight">Explore Jobs</h3>
             <p className="text-sm text-slate-500 mb-8 font-medium">Find your next job opportunity tailored precisely to your resume.</p>
             <Link to="/match" className="inline-flex items-center px-5 py-2.5 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-bold hover:bg-indigo-100 transition-colors shadow-sm">
               <Briefcase className="w-4 h-4 mr-2" />
@@ -119,18 +119,18 @@ const Dashboard = () => {
 
           {/* Goals (Improvement Tips) */}
           <motion.div variants={fadeUp} className="glass-card rounded-[2rem] p-8 flex-1">
-            <h3 className="text-xl font-extrabold text-slate-900 mb-2 tracking-tight">Goals</h3>
+            <h3 className="text-xl font-extrabold text-white mb-2 tracking-tight">Goals</h3>
             <p className="text-sm text-slate-500 mb-8 font-medium">Work on defining and setting your goals!</p>
             <Link to="/upload" className="inline-flex items-center px-5 py-2.5 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-bold hover:bg-indigo-100 transition-colors mb-6 shadow-sm">
               <Target className="w-4 h-4 mr-2" />
               Set my goals
             </Link>
 
-            <div className="mt-6 border-t border-slate-100 pt-6">
-              <h4 className="text-sm font-extrabold text-slate-900 mb-4 tracking-tight">Improvement Tips</h4>
+            <div className="mt-6 border-t border-slate-800 pt-6">
+              <h4 className="text-sm font-extrabold text-white mb-4 tracking-tight">Improvement Tips</h4>
               <ul className="space-y-4">
                 {stats.suggestions.map((tip, index) => (
-                  <motion.li whileHover={{ x: 5 }} key={index} className="flex items-start text-xs text-slate-600 bg-slate-50/50 p-3 rounded-xl border border-slate-100/50 transition-transform cursor-default">
+                  <motion.li whileHover={{ x: 5 }} key={index} className="flex items-start text-xs text-slate-300 bg-slate-950/50 p-3 rounded-xl border border-slate-800/50 transition-transform cursor-default">
                     <span className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mt-1 mr-3 flex-shrink-0 shadow-sm"></span>
                     <span className="leading-relaxed font-medium">{tip}</span>
                   </motion.li>
@@ -144,14 +144,14 @@ const Dashboard = () => {
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* My Jobs Table */}
           <motion.div variants={fadeUp} className="glass-card rounded-[2rem] overflow-hidden flex-1 flex flex-col">
-            <div className="p-8 border-b border-slate-100">
-              <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Suggested Roles</h3>
+            <div className="p-8 border-b border-slate-800">
+              <h3 className="text-xl font-extrabold text-white tracking-tight">Suggested Roles</h3>
               <p className="text-sm text-slate-500 mt-1 font-medium">Roles perfectly aligned with your parsed skills</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  <tr className="border-b border-slate-800 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     <th className="px-6 py-4">Company</th>
                     <th className="px-6 py-4">Job Title</th>
                     <th className="px-6 py-4">Status</th>
@@ -163,8 +163,8 @@ const Dashboard = () => {
                     <tr>
                       <td colSpan="4" className="px-6 py-8 text-center text-slate-500">
                         <div className="animate-pulse space-y-4">
-                          <div className="h-4 bg-slate-100 rounded w-3/4 mx-auto"></div>
-                          <div className="h-4 bg-slate-100 rounded w-1/2 mx-auto"></div>
+                          <div className="h-4 bg-slate-800 rounded w-3/4 mx-auto"></div>
+                          <div className="h-4 bg-slate-800 rounded w-1/2 mx-auto"></div>
                         </div>
                       </td>
                     </tr>
@@ -176,16 +176,16 @@ const Dashboard = () => {
                     </tr>
                   ) : (
                     jobs.map((job) => (
-                      <tr key={job.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                      <tr key={job.id} className="border-b border-slate-50 hover:bg-slate-950 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">
                             <div className="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
                               {job.company.charAt(0)}
                             </div>
-                            <span className="font-semibold text-slate-900">{job.company}</span>
+                            <span className="font-semibold text-white">{job.company}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-slate-600 font-medium">{job.title}</td>
+                        <td className="px-6 py-4 text-slate-300 font-medium">{job.title}</td>
                         <td className="px-6 py-4">
                           <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold">
                             Suggested
