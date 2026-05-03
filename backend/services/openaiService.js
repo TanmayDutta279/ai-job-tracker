@@ -1,115 +1,108 @@
-const analyzeResumeMock = async (resumeText) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+const OpenAI = require("openai");
 
-  const text = (resumeText || '').toLowerCase();
-  
-  // Basic heuristic skill extraction
-  const knownSkills = [
-    "javascript", "react", "node.js", "python", "java", "c++", "c#", "ruby", "go",
-    "sql", "nosql", "mongodb", "postgresql", "mysql", "aws", "azure", "gcp",
-    "docker", "kubernetes", "html", "css", "typescript", "graphql", "rest api",
-    "machine learning", "data science", "angular", "vue", "express", "django"
-  ];
-  
-  const foundSkills = knownSkills.filter(skill => text.includes(skill));
-  if (foundSkills.length === 0) {
-    foundSkills.push("Communication", "Problem Solving", "Adaptability");
-  }
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-  // Dynamic ATS Score based on text length and skills found
-  const baseScore = Math.min(50, text.length / 50); // up to 50 points for length
-  const skillScore = Math.min(50, foundSkills.length * 5); // up to 50 points for skills
-  const atsScore = Math.floor(baseScore + skillScore) || 45;
+// --- Resume Analysis (unchanged or improved if you want) ---
+const analyzeResume = async (resumeText) => {
+  const prompt = `
+Analyze this resume and return ONLY valid JSON:
 
-  // Dynamic job roles
-  const jobRoles = [];
-  if (foundSkills.includes("react") || foundSkills.includes("vue") || foundSkills.includes("angular")) {
-    jobRoles.push("Frontend Developer");
-  }
-  if (foundSkills.includes("node.js") || foundSkills.includes("python") || foundSkills.includes("java")) {
-    jobRoles.push("Backend Developer");
-  }
-  if (jobRoles.length === 2 || foundSkills.includes("sql") || foundSkills.includes("docker")) {
-    jobRoles.push("Full Stack Engineer");
-  }
-  if (foundSkills.includes("machine learning") || foundSkills.includes("data science")) {
-    jobRoles.push("Data Scientist");
-  }
-  
-  if (jobRoles.length === 0) {
-    jobRoles.push("Software Engineer", "Technical Analyst", "IT Support");
-  }
+{
+  "atsScore": number (0-100),
+  "skills": ["skill1", "skill2"],
+  "jobRoles": ["at least 6 relevant roles"],
+  "suggestions": ["improvement1", "improvement2"],
+  "resumeText": "short summary"
+}
 
-  // Dynamic suggestions
-  const suggestions = [];
-  if (atsScore < 60) {
-    suggestions.push("Your resume is quite short. Add more detailed descriptions of your past roles.");
-  }
-  if (foundSkills.length < 4) {
-    suggestions.push("We couldn't detect many technical keywords. Ensure you explicitly list all your core skills.");
-  }
-  suggestions.push("Make sure all bullet points start with strong action verbs (e.g., 'Developed', 'Managed').");
-  suggestions.push("Include quantifiable metrics (e.g., 'Increased performance by 20%') where possible.");
+Rules:
+- Give MINIMUM 6 job roles
+- Include beginner + advanced roles
+- Be realistic
 
-  return {
-    atsScore: Math.min(100, atsScore),
-    skills: foundSkills.map(s => s.charAt(0).toUpperCase() + s.slice(1)),
-    jobRoles,
-    suggestions,
-    resumeText 
-  };
+Resume:
+${resumeText}
+`;
+
+  const response = await client.chat.completions.create({
+    model: "gpt-4.1-mini",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const text = response.choices[0].message.content;
+
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    console.error("Resume JSON error:", text);
+    throw new Error("AI response parsing failed");
+  }
 };
 
-const compareJobMock = async (resumeText, jobDescription) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+// --- 🔥 NEW STRICT JOB MATCH FUNCTION ---
+const compareJob = async (resumeText, jobDescription) => {
+  const prompt = `
+You are a STRICT ATS system.
 
-  const text = (resumeText || '').toLowerCase();
-  const jobText = (jobDescription || '').toLowerCase();
+Compare resume with job description and return ONLY JSON:
 
-  const knownSkills = [
-    "javascript", "react", "node.js", "python", "java", "c++", "c#", "ruby", "go",
-    "sql", "nosql", "mongodb", "postgresql", "mysql", "aws", "azure", "gcp",
-    "docker", "kubernetes", "html", "css", "typescript", "graphql", "rest api"
-  ];
+{
+  "matchScore": number (0-100),
+  "missingSkills": [],
+  "strengths": [],
+  "suggestions": []
+}
 
-  const resumeSkills = knownSkills.filter(skill => text.includes(skill));
-  const jobSkills = knownSkills.filter(skill => jobText.includes(skill));
+STRICT RULES:
+- Be harsh in scoring
+- Many missing skills → score below 60
+- Average resume → 50-75
+- Only excellent match → above 85
+- Penalize missing required skills heavily
+- DO NOT inflate scores
 
-  const missingSkills = jobSkills.filter(skill => !resumeSkills.includes(skill));
-  
-  // Calculate score
-  let matchScore = 100;
-  if (jobSkills.length > 0) {
-    const matchRatio = (jobSkills.length - missingSkills.length) / jobSkills.length;
-    matchScore = Math.floor(matchRatio * 100);
-  } else {
-    // If job description is vague
-    matchScore = text.length > 200 ? 85 : 60;
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}
+`;
+
+  const response = await client.chat.completions.create({
+    model: "gpt-4.1-mini",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const text = response.choices[0].message.content;
+
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (err) {
+    console.error("Match JSON error:", text);
+    throw new Error("AI response parsing failed");
   }
-  
-  // Ensure score looks realistic
-  if (matchScore < 20) matchScore = 35 + Math.floor(Math.random() * 20);
 
-  const suggestions = [];
-  if (missingSkills.length > 0) {
-    suggestions.push(`Consider adding projects or experience related to: ${missingSkills.slice(0, 3).join(', ')}.`);
-  }
-  if (matchScore < 70) {
-    suggestions.push("Tailor your resume specifically to the keywords found in this job description.");
-  } else {
-    suggestions.push("Your profile is a strong match! Ensure your cover letter highlights these exact overlaps.");
+  // 🔥 EXTRA PENALTY LOGIC (makes it realistic)
+  let score = parsed.matchScore;
+
+  if (parsed.missingSkills?.length >= 5) {
+    score -= 20;
+  } else if (parsed.missingSkills?.length >= 3) {
+    score -= 10;
   }
 
-  return {
-    matchScore,
-    missingSkills: missingSkills.map(s => s.charAt(0).toUpperCase() + s.slice(1)),
-    suggestions
-  };
+  // clamp score between 20–100
+  score = Math.max(20, Math.min(100, score));
+
+  parsed.matchScore = score;
+
+  return parsed;
 };
 
 module.exports = {
-  analyzeResumeMock,
-  compareJobMock
+  analyzeResume,
+  compareJob,
 };

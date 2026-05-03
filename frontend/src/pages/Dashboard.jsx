@@ -30,7 +30,7 @@ const Dashboard = () => {
     const fetchJobs = async () => {
       try {
         const resumeText = localStorage.getItem('jobflow_resume_text') || '';
-        const response = await axios.post('https://ready-seas-float.loca.lt/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+        const response = await axios.post('http://localhost:5000/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
         setJobs(response.data);
       } catch (error) {
         console.error('Failed to fetch jobs', error);

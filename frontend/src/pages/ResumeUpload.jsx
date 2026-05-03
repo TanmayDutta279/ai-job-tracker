@@ -45,7 +45,7 @@ const ResumeUpload = () => {
     formData.append('resume', file);
 
     try {
-      const response = await axios.post('https://ready-seas-float.loca.lt/api/upload-resume', formData, {
+      const response = await axios.post('http://localhost:5000/api/upload-resume', formData, {
         headers: { 'Content-Type': 'multipart/form-data', 'Bypass-Tunnel-Reminder': 'true' }
       });
       setResult(response.data);

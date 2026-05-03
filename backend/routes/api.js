@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const pdfLib = require('pdf-parse');
 const pdfParse = typeof pdfLib === 'function' ? pdfLib : (pdfLib.default || pdfLib.PDFParse);
-const { analyzeResumeMock, compareJobMock } = require('../services/openaiService');
+const { analyzeResume, compareJob } = require('../services/openaiService');
 
 // Multer setup for file uploads (in-memory)
 const storage = multer.memoryStorage();
@@ -27,8 +27,9 @@ router.post('/upload-resume', upload.single('resume'), async (req, res) => {
     }
 
     // Call AI Service (Mocked for now as per user request)
-    const analysis = await analyzeResumeMock(textContent);
+    const { analyzeResume } = require('../services/openaiService');
 
+const analysis = await analyzeResume(textContent);
     res.json(analysis);
   } catch (error) {
     console.error('Error in /upload-resume:', error);
@@ -46,34 +47,46 @@ router.post('/job-match', async (req, res) => {
     }
 
     const text = (resumeText || '').toLowerCase();
-    
-    // Dynamically pick a job to match against
-    let autoFetchedJobDescription = "General Software Engineering position requiring strong problem solving, communication, and basic programming knowledge.";
-    let matchedJobTitle = "Software Engineer";
+
+    // 🎯 Dynamic Job Selection (Better than generic one)
+    let jobDescription = "";
+    let jobTitle = "";
 
     if (text.includes('react') || text.includes('javascript') || text.includes('html')) {
-      autoFetchedJobDescription = "Looking for a Frontend developer with experience in modern web development, React, JavaScript, HTML, and CSS.";
-      matchedJobTitle = "Frontend Developer";
-    } else if (text.includes('node') || text.includes('python') || text.includes('java')) {
-      autoFetchedJobDescription = "Backend Developer role focusing on building scalable APIs, databases, Node.js, Python, or Java applications.";
-      matchedJobTitle = "Backend Engineer";
-    } else if (text.includes('data') || text.includes('machine learning')) {
-      autoFetchedJobDescription = "Data Scientist position involving machine learning, data analysis, Python, and SQL.";
-      matchedJobTitle = "Data Scientist";
-    } else if (text.includes('sales') || text.includes('marketing') || text.includes('manager')) {
-      autoFetchedJobDescription = "Seeking an experienced professional for a management role focusing on sales, marketing, and leadership.";
-      matchedJobTitle = "Business Manager";
+      jobTitle = "Frontend Developer";
+      jobDescription = `
+Looking for a Frontend Developer with strong skills in React, JavaScript, HTML, CSS, responsive design, API integration, and UI/UX best practices. Experience with performance optimization and state management is a plus.
+`;
+    } 
+    else if (text.includes('node') || text.includes('python') || text.includes('java')) {
+      jobTitle = "Backend Developer";
+      jobDescription = `
+Backend Developer role requiring Node.js or Python or Java, REST APIs, database management (SQL/NoSQL), authentication, server-side logic, scalability, and system design basics.
+`;
+    } 
+    else if (text.includes('machine learning') || text.includes('data') || text.includes('analytics')) {
+      jobTitle = "Data Scientist";
+      jobDescription = `
+Looking for a Data Scientist with knowledge of Python, machine learning, statistics, data analysis, SQL, and experience with model building and evaluation.
+`;
+    } 
+    else {
+      jobTitle = "Software Engineer";
+      jobDescription = `
+General Software Engineering role requiring programming knowledge, data structures and algorithms, problem solving, system design basics, and teamwork skills.
+`;
     }
 
-    // Call AI Service (Mocked)
-    const matchAnalysis = await compareJobMock(resumeText, autoFetchedJobDescription);
-    
-    // Attach the auto-fetched job so the frontend can display what it matched against
-    matchAnalysis.matchedJobTitle = matchedJobTitle;
-    matchAnalysis.matchedJobDescription = autoFetchedJobDescription;
-    matchAnalysis.matchedJobLink = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(matchedJobTitle)}`;
+    // 🤖 Call your AI function
+    const matchAnalysis = await compareJob(resumeText, jobDescription);
+
+    // 🔥 Add job info for frontend display
+    matchAnalysis.matchedJobTitle = jobTitle;
+    matchAnalysis.matchedJobDescription = jobDescription;
+    matchAnalysis.matchedJobLink = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(jobTitle)}`;
 
     res.json(matchAnalysis);
+
   } catch (error) {
     console.error('Error in /job-match:', error);
     res.status(500).json({ error: 'Failed to analyze job match' });

@@ -18,10 +18,10 @@ const JobMatch = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('https://ready-seas-float.loca.lt/api/job-match', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+      const response = await axios.post('http://localhost:5000/api/job-match', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
       setResult(response.data);
 
-      const jobsResponse = await axios.post('https://ready-seas-float.loca.lt/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+      const jobsResponse = await axios.post('http://localhost:5000/api/jobs', { resumeText }, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
       setJobs(jobsResponse.data);
     } catch (error) {
       console.error('Match failed', error);
