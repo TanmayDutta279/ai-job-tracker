@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const apiRoutes = require('./routes/api');
-console.log("ENV TEST:", JSON.stringify(process.env.GEMINI_API_KEY));
+console.log("ENV TEST:", JSON.stringify(process.env.OPENROUTER_API_KEY));
 
 const app = express();
 const PORT = process.env.PORT || 5000;
