@@ -1,8 +1,9 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const OpenAI = require("openai");
 
-// console.log("API KEY:", process.env.GEMINI_API_KEY);
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const client = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
 const axios = require("axios");
 
@@ -21,12 +22,20 @@ function parseJSON(text) {
   }
 }
 
+// 📄 Resume Analysis
 const analyzeResume = async (resumeText) => {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash"
-  });
+  try {
+    const completion = await client.chat.completions.create({
+      model: "openai/gpt-oss-120b:free",
 
-  const prompt = `
+      messages: [
+        {
+          role: "system",
+          content: "Return ONLY valid JSON."
+        },
+        {
+          role: "user",
+          content: `
 Analyze this resume and return ONLY JSON:
 
 {
@@ -39,25 +48,37 @@ Analyze this resume and return ONLY JSON:
 
 Resume:
 ${resumeText}
-`;
+`
+        }
+      ],
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+      temperature: 0.3,
+    });
 
-  return parseJSON(text);
+    const text = completion.choices[0].message.content;
+
+    return parseJSON(text);
+
+  } catch (error) {
+    console.error("AI analyzeResume failed:", error.message);
+    throw new Error("Failed to analyze resume with AI.");
+  }
 };
 
-
-module.exports = { analyzeResume };
 // 🎯 Job Match
 const compareJob = async (resumeText, jobDescription) => {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash"
-  });
+  try {
+    const completion = await client.chat.completions.create({
+      model: "openai/gpt-oss-120b:free",
 
-  const prompt = `
-You are a strict ATS system.
-
+      messages: [
+        {
+          role: "system",
+          content: "You are a strict ATS system. Return ONLY valid JSON."
+        },
+        {
+          role: "user",
+          content: `
 Return ONLY JSON:
 
 {
@@ -72,22 +93,31 @@ ${resumeText}
 
 Job:
 ${jobDescription}
-`;
+`
+        }
+      ],
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+      temperature: 0.3,
+    });
 
-  let parsed = parseJSON(text);
+    const text = completion.choices[0].message.content;
 
-  // penalty logic
-  let score = parsed.matchScore;
+    let parsed = parseJSON(text);
 
-  if (parsed.missingSkills?.length >= 5) score -= 20;
-  else if (parsed.missingSkills?.length >= 3) score -= 10;
+    // penalty logic
+    let score = parsed.matchScore;
 
-  parsed.matchScore = Math.max(20, Math.min(100, score));
+    if (parsed.missingSkills?.length >= 5) score -= 20;
+    else if (parsed.missingSkills?.length >= 3) score -= 10;
 
-  return parsed;
+    parsed.matchScore = Math.max(20, Math.min(100, score));
+
+    return parsed;
+
+  } catch (error) {
+    console.error("AI compareJob failed:", error.message);
+    throw new Error("Failed to match job with AI.");
+  }
 };
 
 module.exports = {
